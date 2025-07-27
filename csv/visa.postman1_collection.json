@@ -1,0 +1,1798 @@
+{
+	"info": {
+		"_postman_id": "c1d5868d-1414-40bc-8696-95598f65f356",
+		"name": "visa",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37961589",
+		"_collection_link": "https://abc666-0614.postman.co/workspace/abc-Workspace~debc0159-0a52-4390-8502-9d6ce9680802/collection/37961589-c1d5868d-1414-40bc-8696-95598f65f356?action=share&source=collection_link&creator=37961589"
+	},
+	"item": [
+		{
+			"name": "admin",
+			"item": [
+				{
+					"name": "visa",
+					"item": [
+						{
+							"name": "all visa applications",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:4000/api/admin/passport/allpassports",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4000",
+									"path": [
+										"api",
+										"admin",
+										"passport",
+										"allpassports"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "visa by id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{authtoken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:4000/api/admin/visa/visaapplications/6811ec84d58000703b1876a3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4000",
+									"path": [
+										"api",
+										"admin",
+										"visa",
+										"visaapplications",
+										"6811ec84d58000703b1876a3"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get visa by userid",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{authtoken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:4000/api/admin/visa/visaapplications/6811ec84d58000703b1876a3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4000",
+									"path": [
+										"api",
+										"admin",
+										"visa",
+										"visaapplications",
+										"6811ec84d58000703b1876a3"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "assign visa to expert",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:4000/api/admin/visa/allvisaapplications",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "4000",
+									"path": [
+										"api",
+										"admin",
+										"visa",
+										"allvisaapplications"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "admin signup",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\":\"\",\n    \"password\":\"\",\n    \"role\":\"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/admin/assign-role",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"admin",
+								"assign-role"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "admin login",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\":\"admin@gmail.com\",\n    \"password\":\"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/admin/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"admin",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "signup as a expert",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/admin/visa/visaapplications/68132b581490be764503c8c9",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"admin",
+								"visa",
+								"visaapplications",
+								"68132b581490be764503c8c9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "admin asign role",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\":\"admin@gmail.com\",\n    \"password\":\"admin\",\n    \"role\":\"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/admin/role/assign-role",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"admin",
+								"role",
+								"assign-role"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all kycs",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbklkIjoiNjgxMzQzNWVhMjc5YjBlNTBjNDY3Nzc0IiwiaWF0IjoxNzQ2MDkyOTMyLCJleHAiOjE3NDYxNzkzMzJ9.iipm9IHDCHs8QohyoSfygZk8xidQSeonDAIzeH6AIh8",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/admin/kyc/details",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"admin",
+								"kyc",
+								"details"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all users",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/admin/allusers/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"admin",
+								"allusers",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user passport",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/admin/allusers/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"admin",
+								"allusers",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all passport",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/admin/passport/onlypassport",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"admin",
+								"passport",
+								"onlypassport"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update kyc status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbklkIjoiNjgxMzQzNWVhMjc5YjBlNTBjNDY3Nzc0IiwiaWF0IjoxNzQ2Nzc1MDAyLCJleHAiOjE3NDY4NjE0MDJ9.fjLDMnBzlUoMooUFdMsGD3w6QmUezLDjEY5vYxbiJC8",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/admin/kyc/status/68039898f57fac4258a06c58?status=rejected",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"admin",
+								"kyc",
+								"status",
+								"68039898f57fac4258a06c58"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "rejected"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "status update only-passport",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbklkIjoiNjgxMzQzNWVhMjc5YjBlNTBjNDY3Nzc0IiwiaWF0IjoxNzQ2MTY2NjAxLCJleHAiOjE3NDYyNTMwMDF9.lUS5Gr2_EllLpeqcNIPwsAW7Uz66MCpKlkaOdN6wl_c",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/onlypassport/password-status-update/6811d3c912d5978e7933c63b?status=approved",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"onlypassport",
+								"password-status-update",
+								"6811d3c912d5978e7933c63b"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "approved"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "visa application status update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbklkIjoiNjgxMzQzNWVhMjc5YjBlNTBjNDY3Nzc0IiwiaWF0IjoxNzQ2MTY2NjAxLCJleHAiOjE3NDYyNTMwMDF9.lUS5Gr2_EllLpeqcNIPwsAW7Uz66MCpKlkaOdN6wl_c",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/visa/visaApplicationId/68132b581490be764503c8c9?status=approved",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"visa",
+								"visaApplicationId",
+								"68132b581490be764503c8c9"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "approved"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update passport status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbklkIjoiNjgxMzQzNWVhMjc5YjBlNTBjNDY3Nzc0IiwiaWF0IjoxNzQ2MTY2NjAxLCJleHAiOjE3NDYyNTMwMDF9.lUS5Gr2_EllLpeqcNIPwsAW7Uz66MCpKlkaOdN6wl_c",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/passport/passport-status-update/6811bda74501e57091c1284e?status=approved",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"passport",
+								"passport-status-update",
+								"6811bda74501e57091c1284e"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "approved"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "alluser profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbklkIjoiNjgxMzQzNWVhMjc5YjBlNTBjNDY3Nzc0IiwiaWF0IjoxNzQ2MTY2NjAxLCJleHAiOjE3NDYyNTMwMDF9.lUS5Gr2_EllLpeqcNIPwsAW7Uz66MCpKlkaOdN6wl_c",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/admin/allusers/all",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"admin",
+								"allusers",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "kyc by kycid",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbklkIjoiNjgxMzQzNWVhMjc5YjBlNTBjNDY3Nzc0IiwiaWF0IjoxNzQ2MTY2NjAxLCJleHAiOjE3NDYyNTMwMDF9.lUS5Gr2_EllLpeqcNIPwsAW7Uz66MCpKlkaOdN6wl_c",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/admin/kyc/details/68039898f57fac4258a06c58",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"admin",
+								"kyc",
+								"details",
+								"68039898f57fac4258a06c58"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all expersts ",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/expert/signup",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"expert",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get experts by id",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/expert/allexperts",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"expert",
+								"allexperts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "assign kyc to expert",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/admin/kyc/assign-expert/:kycId/:expertId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"admin",
+								"kyc",
+								"assign-expert",
+								":kycId",
+								":expertId"
+							],
+							"variable": [
+								{
+									"key": "kycId",
+									"value": "6822f636541978554574265d"
+								},
+								{
+									"key": "expertId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "passport assign to expert",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/expert/by-expert/6826cd36f5a66f46721f4c79",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"expert",
+								"by-expert",
+								"6826cd36f5a66f46721f4c79"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "expert",
+			"item": [
+				{
+					"name": "login as a expert",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/expert/signup",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"expert",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get kyc by expertid",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/admin/kyc/assign-expert/:kycId/:expertId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"admin",
+								"kyc",
+								"assign-expert",
+								":kycId",
+								":expertId"
+							],
+							"variable": [
+								{
+									"key": "kycId",
+									"value": ""
+								},
+								{
+									"key": "expertId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get visa by expertid",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/expert/passport/:expertId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"expert",
+								"passport",
+								":expertId"
+							],
+							"variable": [
+								{
+									"key": "expertId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get passport by expertid",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/expert/passport/:expertId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"expert",
+								"passport",
+								":expertId"
+							],
+							"variable": [
+								{
+									"key": "expertId",
+									"value": "6826cd36f5a66f46721f4c79"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "kyc by kycid",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/expert/visa/:expertId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"expert",
+								"visa",
+								":expertId"
+							],
+							"variable": [
+								{
+									"key": "expertId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "passport by passport id",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/expert/expertkyc/:kycId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"expert",
+								"expertkyc",
+								":kycId"
+							],
+							"variable": [
+								{
+									"key": "kycId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "visa by visa id",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/expert/expertpasport/:passportId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"expert",
+								"expertpasport",
+								":passportId"
+							],
+							"variable": [
+								{
+									"key": "passportId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ragister",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\":\"nikhil\",\n    \"email\":\"adm121gmail.com\",\n    \"password\":\"Pass@123\"\n\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:6000/api/auth/signup",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6000",
+					"path": [
+						"api",
+						"auth",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDM3ZTk2YzczNjc4ODdiMjgyY2Q4NSIsImlhdCI6MTc0NTMyNzMzMSwiZXhwIjoxNzQ1NDEzNzMxfQ.yNuU1_p6L6yfGWSkeb7wvWW40q8PYYLxmp-1WOZofME",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDM3ZGMxYzczNjc4ODdiMjgyY2Q3ZiIsImlhdCI6MTc0NTA1OTI2NSwiZXhwIjoxNzQ1MTQ1NjY1fQ.GwlNfAt9IFqeFOObw1xwS_lvEzlEGbRHzlprsksIxPM"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"john@example5.com\",\n  \"password\": \"secret123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "kyc",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDM3YjdmYTNhY2NkYWQwMDgyMGQ4OCIsImlhdCI6MTc0NjU5NjEzNSwiZXhwIjoxNzQ2NjgyNTM1fQ.Hpsq5KCsdUdnEm014MFmxU_1iNpIbhhc_gAwSaWd35Q",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "firstName",
+							"value": "nikhil",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "jsnikhil90@gmail.com",
+							"type": "text"
+						},
+						{
+							"key": "address",
+							"value": "222 abc abc new delhi",
+							"type": "text"
+						},
+						{
+							"key": "pincode",
+							"value": "110000",
+							"type": "text"
+						},
+						{
+							"key": "country",
+							"value": "india",
+							"type": "text"
+						},
+						{
+							"key": "nationality",
+							"value": "indian",
+							"type": "text"
+						},
+						{
+							"key": "panCardImg",
+							"type": "file",
+							"src": "postman-cloud:///1f019c39-e0db-4160-86b7-2b43119c5cc9",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:4000/api/kyc/submit/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"kyc",
+						"submit",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get kyc details",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:6000/api/kyc/details",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6000",
+					"path": [
+						"api",
+						"kyc",
+						"details"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "passport apply",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDM3ZTk2YzczNjc4ODdiMjgyY2Q4NSIsImlhdCI6MTc0NTk5MzA1MiwiZXhwIjoxNzQ2MDc5NDUyfQ.1m1iVN4JCIHboFN2UcByQsQXdM4a5z8uKEB7_q4F2DQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "kycId",
+							"value": "6811b93d1143bddf522c63fc",
+							"type": "text"
+						},
+						{
+							"key": "firstName",
+							"value": "nikhil",
+							"type": "text"
+						},
+						{
+							"key": "lastName",
+							"value": "verma",
+							"type": "text"
+						},
+						{
+							"key": "dateOfBirth",
+							"value": "11/07/2000",
+							"type": "text"
+						},
+						{
+							"key": "userImg",
+							"type": "file",
+							"src": "postman-cloud:///1f019c39-e0db-4160-86b7-2b43119c5cc9"
+						},
+						{
+							"key": "adharFrontImg",
+							"type": "file",
+							"src": "postman-cloud:///1f019c39-e0db-4160-86b7-2b43119c5cc9"
+						},
+						{
+							"key": "adharBackImg",
+							"type": "file",
+							"src": "postman-cloud:///1f019c39-e0db-4160-86b7-2b43119c5cc9"
+						},
+						{
+							"key": "panCardImg",
+							"type": "file",
+							"src": "postman-cloud:///1f019c39-e0db-4160-86b7-2b43119c5cc9"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:6000/api/passport/apply",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6000",
+					"path": [
+						"api",
+						"passport",
+						"apply"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get passport",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDM3ZTk2YzczNjc4ODdiMjgyY2Q4NSIsImlhdCI6MTc0NTk5MzM0NSwiZXhwIjoxNzQ2MDc5NzQ1fQ.FvxRjAGQnDTW9kZRwR0RYmktzZ5TAupwPy_RUgZ3LNU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:6000/api/passport/allpassports",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6000",
+					"path": [
+						"api",
+						"passport",
+						"allpassports"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "only passport",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDM3YjdmYTNhY2NkYWQwMDgyMGQ4OCIsImlhdCI6MTc0NjY4MjQxOSwiZXhwIjoxNzQ2NzY4ODE5fQ.33rvXKWJcg-FIoiEuffAgUB6BwGZrhIJFneg-F-NrLQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "passportFrontImg",
+							"type": "file",
+							"src": "postman-cloud:///1f0258da-52c5-4d90-bba1-24727a5d2dce"
+						},
+						{
+							"key": "Fullname",
+							"value": "nikhil verma",
+							"type": "text"
+						},
+						{
+							"key": "kycId",
+							"value": "6811b93d1143bddf522c63fc",
+							"type": "text"
+						},
+						{
+							"key": "PassportNumber",
+							"value": "326876437573",
+							"type": "text"
+						},
+						{
+							"key": "IssuingCountry",
+							"value": "india",
+							"type": "text"
+						},
+						{
+							"key": "PlaceofIssue",
+							"value": "india",
+							"type": "text"
+						},
+						{
+							"key": "DateofBirth",
+							"value": "2000/07/11",
+							"type": "text"
+						},
+						{
+							"key": "DateofIssue",
+							"value": "2025/01/11",
+							"type": "text"
+						},
+						{
+							"key": "DateofExpiry",
+							"value": "2025/04/11",
+							"type": "text"
+						},
+						{
+							"key": "Nationality",
+							"value": "indian",
+							"type": "text"
+						},
+						{
+							"key": "Gender",
+							"value": "male",
+							"type": "text"
+						},
+						{
+							"key": "PassportType",
+							"value": "student",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:4000/api/onlypassport/onlypassport/681b0a444e594a11542ba5b0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"onlypassport",
+						"onlypassport",
+						"681b0a444e594a11542ba5b0"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						},
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add and update profile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDM3ZTk2YzczNjc4ODdiMjgyY2Q4NSIsImlhdCI6MTc0NTk5MzM0NSwiZXhwIjoxNzQ2MDc5NzQ1fQ.FvxRjAGQnDTW9kZRwR0RYmktzZ5TAupwPy_RUgZ3LNU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": \"681c5465052ce6b6b27e31aa\",\n    \"fullName\":\"nikhil\",\n    \"passportNumber\":\"12423423525\",\n    \"nationality\":\"indian\",\n    \"dateOfBirth\":\"11/11/2222\",\n    \"phone\":\"6392848646\",\n    \"address\":\" 512 scdhjbvjh jsjdfj delhi\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/api/profile/add",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"profile",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get user profile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDM3ZTk2YzczNjc4ODdiMjgyY2Q4NSIsImlhdCI6MTc0NTk5MzM0NSwiZXhwIjoxNzQ2MDc5NzQ1fQ.FvxRjAGQnDTW9kZRwR0RYmktzZ5TAupwPy_RUgZ3LNU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/api/profile/all",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"profile",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get profile by userid",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:6000/api/profile/all",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6000",
+					"path": [
+						"api",
+						"profile",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "visa apply",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:6000/api/profile/68037e96c7367887b282cd85",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6000",
+					"path": [
+						"api",
+						"profile",
+						"68037e96c7367887b282cd85"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user all visa apply",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDM3ZTk2YzczNjc4ODdiMjgyY2Q4NSIsImlhdCI6MTc0NTk5MzM0NSwiZXhwIjoxNzQ2MDc5NzQ1fQ.FvxRjAGQnDTW9kZRwR0RYmktzZ5TAupwPy_RUgZ3LNU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:6000/api/visa/allapplications/68037e96c7367887b282cd85",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6000",
+					"path": [
+						"api",
+						"visa",
+						"allapplications",
+						"68037e96c7367887b282cd85"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get visa by visaId",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTMxODlmYjE4ZGU3ZGZjMWI0Y2FlYSIsImlhdCI6MTc0Njg1OTcwNiwiZXhwIjoxNzQ2OTQ2MTA2fQ.HY9KuTxJOg__tw5kxwZcLnwAp69UaxOMnty-mj7gLaw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/api/visa/visa/681efdc670ac8d8bcbf1eef0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"visa",
+						"visa",
+						"681efdc670ac8d8bcbf1eef0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Passport By Id",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:6000/api/admin/passport/getpassport/:passportId",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6000",
+					"path": [
+						"api",
+						"admin",
+						"passport",
+						"getpassport",
+						":passportId"
+					],
+					"variable": [
+						{
+							"key": "passportId",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Passport ( Admin )",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/api/admin/passportuser/allpassports",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"admin",
+						"passportuser",
+						"allpassports"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Passport By ID ( Admin )",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/api/admin/passportuser/getpassport/:passportId",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"admin",
+						"passportuser",
+						"getpassport",
+						":passportId"
+					],
+					"variable": [
+						{
+							"key": "passportId",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login send otp email",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"jsnikhil00@gmail.com\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/api/auth/send-otp",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"auth",
+						"send-otp"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login verify otp email",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"jsnikhil00@gmail.com\",\n    \"otp\":\"485334\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/api/auth/verify-otp",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"auth",
+						"verify-otp"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get details of all forms",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/api/auth/user/681c5465052ce6b6b27e31aa",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"auth",
+						"user",
+						"681c5465052ce6b6b27e31aa"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "allkycs of user",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTMxODlmYjE4ZGU3ZGZjMWI0Y2FlYSIsImlhdCI6MTc0Njg1NDY3OCwiZXhwIjoxNzQ2OTQxMDc4fQ.QtFcj_UPR0Thc5ObbvtMP5HgCsyYMZv0K_CTLgDQ8CI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/api/kyc/alldetails",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"kyc",
+						"alldetails"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "kyc by kyc id",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTMxODlmYjE4ZGU3ZGZjMWI0Y2FlYSIsImlhdCI6MTc0Njg1NDY3OCwiZXhwIjoxNzQ2OTQxMDc4fQ.QtFcj_UPR0Thc5ObbvtMP5HgCsyYMZv0K_CTLgDQ8CI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/api/kyc/details/681ee2cd1f824bfbedbfa999",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"kyc",
+						"details",
+						"681ee2cd1f824bfbedbfa999"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "token",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDM3ZTk2YzczNjc4ODdiMjgyY2Q4NSIsImlhdCI6MTc0NTk5MzA1MiwiZXhwIjoxNzQ2MDc5NDUyfQ.1m1iVN4JCIHboFN2UcByQsQXdM4a5z8uKEB7_q4F2DQ",
+			"type": "string"
+		},
+		{
+			"key": "authtoken",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbklkIjoiNjgxMzQzNWVhMjc5YjBlNTBjNDY3Nzc0IiwiaWF0IjoxNzQ2MDkyOTMyLCJleHAiOjE3NDYxNzkzMzJ9.iipm9IHDCHs8QohyoSfygZk8xidQSeonDAIzeH6AIh8",
+			"type": "string"
+		}
+	]
+}
