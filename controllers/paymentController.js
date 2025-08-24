@@ -159,6 +159,43 @@ exports.verifyPayment = async (req, res) => {
   }
 };
 
+// verift Razorpay Payement v2
+
+// Simple Razorpay signature verify (stateless, no DB, no user)
+// Expected body: { razorpay_order_id, razorpay_payment_id, razorpay_signature }
+exports.verifyRazorpaySimple = async (req, res) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+      req.body;
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "razorpay_order_id, razorpay_payment_id, razorpay_signature required",
+      });
+    }
+
+    const hmac = crypto.createHmac(
+      "sha256",
+      process.env.RAZORPAY_KEY_SECRET || "Nu6GDvKUbd3IJvdNARKT5EoT"
+    );
+    hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+    const expected = hmac.digest("hex");
+    const valid = expected === razorpay_signature;
+    return res.status(valid ? 200 : 400).json({
+      success: valid,
+      status: valid ? "success" : "failed",
+      expected,
+      received: razorpay_signature,
+    });
+  } catch (err) {
+    console.error("💥 Razorpay Simple Verify Error:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: err.message });
+  }
+};
+
 // Get User Payment History
 
 exports.getUserPaymentHistory = async (req, res) => {

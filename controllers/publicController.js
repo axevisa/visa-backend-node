@@ -12,6 +12,7 @@ const { sendMail } = require("../config/nodemailer");
 const { getWelcomeEmailTemplate } = require("../emails/welcomeTemplate.js");
 const { getOtpEmailTemplate } = require("../emails/otp.js");
 const ActionFormSubmission = require("../model/ActionFormSubmission");
+const axios = require("axios");
 // Register admin
 
 const registerAdmin = async (req, res) => {
@@ -251,6 +252,15 @@ const loginUser = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Invalid credentials", success: false });
+    }
+
+    // If user signed up via Google and has no password, block password login
+    if (!existingUser.password) {
+      return res.status(400).json({
+        message:
+          "Password login not available for this account. Use Google login.",
+        success: false,
+      });
     }
 
     // genarate otp
@@ -703,6 +713,162 @@ const submitActionForm = async (req, res) => {
   }
 };
 
+// login with google
+// Requires env vars: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI
+
+// STEP 1: Redirect user to Google OAuth
+const googleLogin = (req, res) => {
+  try {
+    // Use backend callback URL for Google OAuth
+    const backendRedirectUri =
+      process.env.GOOGLE_REDIRECT_URI ||
+      "http://localhost:4000/api/public/google/callback";
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const scope = encodeURIComponent("openid email profile");
+
+    if (!clientId) {
+      return res
+        .status(500)
+        .json({ success: false, message: "Google OAuth not configured" });
+    }
+
+    const authUrl =
+      `https://accounts.google.com/o/oauth2/v2/auth?` +
+      `client_id=${clientId}&redirect_uri=${encodeURIComponent(
+        backendRedirectUri
+      )}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;
+
+    return res.redirect(authUrl);
+  } catch (e) {
+    console.error("Google login error:", e.message);
+    return res.status(500).json({ success: false, message: "Auth error" });
+  }
+};
+
+// STEP 2: Google callback → exchange code for tokens → decode user info
+const googleCallback = async (req, res) => {
+  const { code } = req.query;
+
+  try {
+    if (!code) {
+      const errorUrl = `https://axevisa.com/pages/auth/google/callback?error=missing_code`;
+      return res.redirect(errorUrl);
+    }
+
+    // Exchange code for tokens (use backend callback URL)
+    const backendRedirectUri =
+      process.env.GOOGLE_REDIRECT_URI ||
+      "https://axevisa.com/api/public/google/callback";
+
+    const tokenRes = await axios.post(
+      "https://oauth2.googleapis.com/token",
+      {
+        code,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        redirect_uri: backendRedirectUri,
+        grant_type: "authorization_code",
+      },
+      { headers: { "Content-Type": "application/json" } }
+    );
+
+    const { id_token } = tokenRes.data;
+    if (!id_token) {
+      const errorUrl = `https://axevisa.com/pages/auth/google/callback?error=no_token`;
+      return res.redirect(errorUrl);
+    }
+
+    // Verify token and get user info from Google
+    const infoRes = await axios.get(
+      `https://oauth2.googleapis.com/tokeninfo?id_token=${id_token}`
+    );
+    const userInfo = infoRes.data; // contains sub, email, name, picture, etc.
+
+    // Find existing user by googleId or email
+    let user = await User.findOne({
+      $or: [
+        { googleId: userInfo.sub },
+        { email: userInfo.email?.toLowerCase() },
+      ],
+    });
+
+    if (!user) {
+      user = await User.create({
+        googleId: userInfo.sub,
+        name: userInfo.name || userInfo.given_name || "",
+        email: userInfo.email?.toLowerCase() || undefined,
+        profilePic: userInfo.picture || "",
+        authProvider: "google",
+      });
+    } else {
+      // Link googleId if not linked yet
+      let changed = false;
+      if (!user.googleId) {
+        user.googleId = userInfo.sub;
+        changed = true;
+      }
+      if (!user.profilePic && userInfo.picture) {
+        user.profilePic = userInfo.picture;
+        changed = true;
+      }
+      if (user.authProvider !== "google") {
+        user.authProvider = "google";
+        changed = true;
+      }
+      if (changed) await user.save();
+    }
+
+    // Issue app JWT (keep same behavior and expiry policy)
+    const appToken = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    // Set cookie for same-origin requests
+    res.cookie("token", appToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    // Redirect to your frontend with token
+    const frontendRedirectUrl = `https://axevisa.com/pages/auth/google/callback?token=${appToken}&success=true&user=${JSON.stringify(
+      user
+    )}`;
+    return res.redirect(frontendRedirectUrl);
+  } catch (err) {
+    console.error("Google OAuth error", err.response?.data || err.message);
+    const errorUrl = `https://axevisa.com/pages/auth/google/callback?error=auth_failed`;
+    return res.redirect(errorUrl);
+  }
+};
+
+// Logout user - Clear JWT cookie
+const logout = (req, res) => {
+  try {
+    // Clear the JWT cookie
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    console.error("Logout error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error during logout",
+      error: error.message,
+    });
+  }
+};
+
 // exporting the functions
 
 module.exports = {
@@ -721,4 +887,7 @@ module.exports = {
   sendEmailOtpforgotPassword,
   SubmitEmergencyVisaForm,
   submitActionForm,
+  googleLogin,
+  googleCallback,
+  logout,
 };

@@ -17,6 +17,9 @@ const {
   userOtpVerifyforgotPassword,
   SubmitEmergencyVisaForm,
   submitActionForm,
+  googleLogin,
+  googleCallback,
+  logout,
 } = require("../controllers/publicController");
 
 //admin routes
@@ -67,5 +70,13 @@ router.post(
 
 // get action form submission
 router.post("/submit-action-form", submitActionForm);
+
+// google login
+
+router.get("/google", googleLogin);
+router.get("/google/callback", googleCallback);
+
+// Logout user
+router.post("/logout", logout);
 
 module.exports = router;
