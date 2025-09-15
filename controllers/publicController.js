@@ -12,7 +12,9 @@ const { sendMail } = require("../config/nodemailer");
 const { getWelcomeEmailTemplate } = require("../emails/welcomeTemplate.js");
 const { getOtpEmailTemplate } = require("../emails/otp.js");
 const ActionFormSubmission = require("../model/ActionFormSubmission");
+const FullActionForm = require("../model/FullActionForm");
 const axios = require("axios");
+// const { default: documents } = require("razorpay/dist/types/documents.js");
 // Register admin
 
 const registerAdmin = async (req, res) => {
@@ -713,6 +715,72 @@ const submitActionForm = async (req, res) => {
   }
 };
 
+
+// full action form
+
+const getFullDataActionForm = async (req, res) => {
+  try {
+    const { firstName, lastName, email, phone, dateofbirth, nationality, visa_type, perpose, travel_date, stay_duration, occupation, employer, education_lavel, marital_status, additional_info, form_type, status } = req.body;
+    const uploaded = req.uploadedFiles || {};
+
+    // Log the uploaded files for debugging
+    console.log("Uploaded files:", uploaded);
+
+    const newForm = new FullActionForm({
+      firstName,
+      lastName,
+      email,
+      phone,
+      dateofbirth,
+      nationality,
+      visa_type,
+      perpose,
+      travel_date,
+      stay_duration,
+      occupation,
+      employer,
+      education_lavel,
+      marital_status,
+      additional_info,
+      form_type,
+      status: status || "pending",
+      documents: {
+        passport: uploaded.passport || [],
+        photo: uploaded.photo || [],
+        financial_doc: uploaded.financial_doc || [],
+        supportingDocument: uploaded.supportingDocument || [],
+      }
+    });
+
+    // Save the form to the database
+    const savedForm = await newForm.save();
+
+    // Send success response
+    return res.status(201).json({
+      success: true,
+      message: "Form submitted successfully",
+      data: savedForm
+    });
+  } catch (error) {
+    console.error("Full Action Form Submission Error:", error);
+
+    // Provide more specific error handling for multer errors
+    if (error.code === 'LIMIT_UNEXPECTED_FILE') {
+      return res.status(400).json({
+        success: false,
+        message: "Unexpected file field. Please check the file field names in your request.",
+        error: "Unexpected file field"
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong while submitting the form",
+      error: error.message
+    });
+  }
+};
+
 // login with google
 // Requires env vars: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI
 
@@ -887,6 +955,7 @@ module.exports = {
   sendEmailOtpforgotPassword,
   SubmitEmergencyVisaForm,
   submitActionForm,
+  getFullDataActionForm, // Added the new function to exports
   googleLogin,
   googleCallback,
   logout,

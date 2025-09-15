@@ -6,7 +6,7 @@ const crypto = require("crypto");
 
 function dynamicUpload(
   folderName = "",
-  fields = [{ name: "image", maxCount: 1 }]
+  fields = [{ name: "image", maxCount: 5 }]
 ) {
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -28,6 +28,22 @@ function dynamicUpload(
 
   return (req, res, next) => {
     upload.fields(fields)(req, res, (err) => {
+      if (err instanceof multer.MulterError) {
+        // Handle multer-specific errors
+        if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+          return res.status(400).json({
+            success: false,
+            message: "Unexpected file field. Please check the file field names in your request.",
+            error: err.message
+          });
+        }
+        // Pass other multer errors to the global error handler
+        return next(err);
+      } else if (err) {
+        // Pass other errors to the global error handler
+        return next(err);
+      }
+
       req.uploadedFiles = {};
 
       fields.forEach((field) => {
@@ -40,7 +56,7 @@ function dynamicUpload(
         }
       });
 
-      next(err);
+      next();
     });
   };
 }

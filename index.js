@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const multer = require("multer");
 require("dotenv").config();
 
 const db = require("./config/db");
@@ -52,6 +53,27 @@ app.post("/upload", dynamicUpload("profilePics"), (req, res) => {
     return res.status(400).send("No file uploaded.");
   }
   res.status(200).json({ filePath: image });
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error("Global error handler:", err);
+
+  // Handle multer errors
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({
+      success: false,
+      message: "File upload error",
+      error: err.message
+    });
+  }
+
+  // Handle other errors
+  return res.status(500).json({
+    success: false,
+    message: "Internal server error",
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+  });
 });
 
 // Start the server

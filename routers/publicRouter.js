@@ -17,6 +17,7 @@ const {
   userOtpVerifyforgotPassword,
   SubmitEmergencyVisaForm,
   submitActionForm,
+  getFullDataActionForm,
   googleLogin,
   googleCallback,
   logout,
@@ -70,6 +71,15 @@ router.post(
 
 // get action form submission
 router.post("/submit-action-form", submitActionForm);
+
+// get full action form
+router.post("/get-full-data-action-form",
+  dynamicUpload("actionFormDocs", [
+    { name: "passport", maxCount: 2 },
+    { name: "photo", maxCount: 2 },
+    { name: "financial_doc", maxCount: 5 },
+    { name: "supportingDocument", maxCount: 5 },
+  ]), getFullDataActionForm)
 
 // google login
 
