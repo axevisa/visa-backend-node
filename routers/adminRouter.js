@@ -3,6 +3,7 @@ const adminController = require("../controllers/adminController");
 const visaController = require("../controllers/visaController");
 const passportController = require("../controllers/passportController");
 const paymentController = require("../controllers/paymentController");
+const publicController = require("../controllers/publicController");
 const { adminAuth } = require("../middleware/authentication");
 
 router.put(
@@ -140,5 +141,17 @@ router.get(
 
 //submit ads query
 router.get("/ads-query", adminAuth, adminController.getAdsQuery);
+
+//action form
+router.get(
+  "/get-fullaction-form",
+  adminAuth,
+  publicController.getFullActionForm
+);
+router.put(
+  "/chnage-action-form-status/:id",
+  adminAuth,
+  publicController.chnageActionFormStatus
+);
 
 module.exports = router;

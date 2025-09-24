@@ -715,12 +715,29 @@ const submitActionForm = async (req, res) => {
   }
 };
 
-
 // full action form
 
 const getFullDataActionForm = async (req, res) => {
   try {
-    const { firstName, lastName, email, phone, dateofbirth, nationality, visa_type, perpose, travel_date, stay_duration, occupation, employer, education_lavel, marital_status, additional_info, form_type, status } = req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      phone,
+      dateofbirth,
+      nationality,
+      visa_type,
+      perpose,
+      travel_date,
+      stay_duration,
+      occupation,
+      employer,
+      education_lavel,
+      marital_status,
+      additional_info,
+      form_type,
+      status,
+    } = req.body;
     const uploaded = req.uploadedFiles || {};
 
     // Log the uploaded files for debugging
@@ -749,7 +766,7 @@ const getFullDataActionForm = async (req, res) => {
         photo: uploaded.photo || [],
         financial_doc: uploaded.financial_doc || [],
         supportingDocument: uploaded.supportingDocument || [],
-      }
+      },
     });
 
     // Save the form to the database
@@ -759,25 +776,73 @@ const getFullDataActionForm = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "Form submitted successfully",
-      data: savedForm
+      data: savedForm,
     });
   } catch (error) {
     console.error("Full Action Form Submission Error:", error);
 
     // Provide more specific error handling for multer errors
-    if (error.code === 'LIMIT_UNEXPECTED_FILE') {
+    if (error.code === "LIMIT_UNEXPECTED_FILE") {
       return res.status(400).json({
         success: false,
-        message: "Unexpected file field. Please check the file field names in your request.",
-        error: "Unexpected file field"
+        message:
+          "Unexpected file field. Please check the file field names in your request.",
+        error: "Unexpected file field",
       });
     }
 
     return res.status(500).json({
       success: false,
       message: "Something went wrong while submitting the form",
-      error: error.message
+      error: error.message,
     });
+  }
+};
+
+// get full action form
+const getFullActionForm = async (req, res) => {
+  try {
+    const fullActionForm = await FullActionForm.find();
+    res.status(200).json({ success: true, data: fullActionForm });
+  } catch (error) {
+    console.error("Full Action Form Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// change action form status
+const chnageActionFormStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const allowedStatuses = ["pending", "approved", "rejected"];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid status. Allowed values are: ${allowedStatuses.join(
+          ", "
+        )}.`,
+      });
+    }
+
+    const fullActionForm = await FullActionForm.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    if (!fullActionForm) {
+      return res.status(404).json({
+        success: false,
+        message: "Form not found",
+      });
+    }
+
+    res.status(200).json({ success: true, data: fullActionForm });
+  } catch (error) {
+    console.error("Change Action Form Status Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
@@ -959,4 +1024,6 @@ module.exports = {
   googleLogin,
   googleCallback,
   logout,
+  getFullActionForm,
+  chnageActionFormStatus,
 };
