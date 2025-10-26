@@ -14,6 +14,16 @@ const { getOtpEmailTemplate } = require("../emails/otp.js");
 const ActionFormSubmission = require("../model/ActionFormSubmission");
 const FullActionForm = require("../model/FullActionForm");
 const axios = require("axios");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+console.log("GoogleGenerativeAI:", GoogleGenerativeAI);
+const genAI = new GoogleGenerativeAI(
+  process.env.GEMINI_API_KEY || "AIzaSyAQ9dwTGJUn5TzeZchHTXvT7PesxEC4ufo"
+);
+
+console.log("genAI:", genAI);
+console.log("process.env.GEMINI_API_KEY:", process.env.GEMINI_API_KEY);
+
 // const { default: documents } = require("razorpay/dist/types/documents.js");
 // Register admin
 
@@ -802,8 +812,35 @@ const getFullDataActionForm = async (req, res) => {
 // get full action form
 const getFullActionForm = async (req, res) => {
   try {
-    const fullActionForm = await FullActionForm.find();
-    res.status(200).json({ success: true, data: fullActionForm });
+    // Get pagination params from query, with defaults
+    let { page = 1, limit = 10 } = req.query;
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+    // Calculate skip value
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination info
+    const total = await FullActionForm.countDocuments();
+
+    // Fetch paginated data, latest first
+    const fullActionForm = await FullActionForm.find()
+      .sort({ createdAt: -1 }) // Latest first
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      success: true,
+      data: fullActionForm,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPrevPage: page > 1,
+      },
+    });
   } catch (error) {
     console.error("Full Action Form Error:", error);
     res.status(500).json({ success: false, message: "Server error" });
@@ -843,6 +880,99 @@ const chnageActionFormStatus = async (req, res) => {
   } catch (error) {
     console.error("Change Action Form Status Error:", error);
     res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// delete action form
+
+const deleteActionForm = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Form ID is required",
+      });
+    }
+
+    // Find the form first to get document paths
+    const actionForm = await FullActionForm.findById(id);
+
+    if (!actionForm) {
+      return res.status(404).json({
+        success: false,
+        message: "Action form not found",
+      });
+    }
+
+    // Delete associated files from uploads directory
+    const documents = actionForm.documents;
+    const filePaths = [
+      ...documents.passport,
+      ...documents.photo,
+      ...documents.financial_doc,
+      ...documents.supportingDocument,
+    ];
+
+    // Delete files from filesystem
+    for (const filePath of filePaths) {
+      if (filePath) {
+        const fullPath = path.join(
+          __dirname,
+          "../uploads/actionFormDocs",
+          filePath
+        );
+        try {
+          if (fs.existsSync(fullPath)) {
+            fs.unlinkSync(fullPath);
+            console.log(`✅ Deleted file: ${filePath}`);
+          }
+        } catch (fileError) {
+          console.warn(
+            `⚠️ Failed to delete file ${filePath}:`,
+            fileError.message
+          );
+          // Continue with deletion even if file deletion fails
+        }
+      }
+    }
+
+    // Delete the form from database
+    await FullActionForm.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Action form deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete Action Form Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+//delete ads query
+
+const deleteAdsQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedAdsQuery = await ActionFormSubmission.findByIdAndDelete(id);
+    res.status(200).json({
+      success: true,
+      message: "Ads query deleted successfully",
+      data: deletedAdsQuery,
+    });
+  } catch (error) {
+    console.error("Delete Ads Query Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 
@@ -1002,6 +1132,334 @@ const logout = (req, res) => {
   }
 };
 
+// Ai Visa Checker
+const analyzeVisaChances = async (userData) => {
+  try {
+    // 🧠 System instruction for Gemini
+    const systemPrompt = `
+      You are a professional visa eligibility analysis AI.
+      Your job is to analyze the user's visa approval chance based on given data.
+      
+      CRITICAL INSTRUCTIONS:
+      - Be realistic and data-driven, not overly optimistic.
+      - Analyze the current global situation of the country and the visa application process.
+      - Consider all factors: travel history, financial stability, employment, criminal record, previous rejections.
+      - You MUST return ONLY valid JSON format - no markdown, no explanations, no code blocks.
+      - The JSON must be parseable and contain all required fields.
+
+      REQUIRED JSON OUTPUT FORMAT (return exactly this structure):
+      {
+        "visaChance": 75,
+        "positivePoints": ["Strong financial stability", "Clean criminal record"],
+        "negativePoints": ["Limited travel history", "First-time applicant"],
+        "finalAdvice": "Your application shows good potential. Focus on providing comprehensive documentation.",
+        "riskFactors": ["Limited international travel experience"],
+        "recommendedDocuments": ["Detailed travel itinerary", "Hotel bookings"]
+      }
+      
+      IMPORTANT: Return ONLY the JSON object, nothing else.
+    `;
+
+    // 🧩 User data prompt
+    const userPrompt = `
+      Analyze the following visa applicant data and provide a professional assessment:
+      ${JSON.stringify(userData, null, 2)}
+
+      Focus on:
+      - Visa approval likelihood (percentage)
+      - Strengths and weaknesses based on all provided data
+      - Risk factors that could affect approval
+      - Recommended additional documents
+      - Actionable advice to improve chances
+      
+      Consider these key factors:
+      - Citizenship and destination country relationship
+      - Purpose of visit appropriateness
+      - Financial stability (savings, income, employment)
+      - Travel history and previous rejections
+      - Criminal record and legal issues
+      - Age and trip duration reasonableness
+      - Available supporting documents
+      
+      Return ONLY the JSON as specified above.
+    `;
+
+    // 🧬 Gemini model setup
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      systemInstruction: systemPrompt,
+    });
+
+    const result = await model.generateContent(userPrompt);
+    const response = await result.response;
+    let aiText = response.text().trim();
+
+    // Debug logging
+    console.log("Raw AI Response:", aiText);
+
+    // 🧹 Clean output (if wrapped in markdown)
+    if (aiText.startsWith("```json")) {
+      aiText = aiText
+        .replace(/^```json\s*/, "")
+        .replace(/```$/, "")
+        .trim();
+    } else if (aiText.startsWith("```")) {
+      aiText = aiText
+        .replace(/^```\s*/, "")
+        .replace(/```$/, "")
+        .trim();
+    }
+
+    console.log("Cleaned AI Response:", aiText);
+
+    // ✅ Parse and validate JSON
+    let parsed;
+    try {
+      parsed = JSON.parse(aiText);
+    } catch (parseError) {
+      console.error("JSON Parse Error:", parseError);
+      console.error("AI Response:", aiText);
+      throw new Error("AI returned invalid JSON format");
+    }
+
+    // Validate required fields with fallbacks
+    const validatedResponse = {
+      visaChance:
+        typeof parsed.visaChance === "number" ? parsed.visaChance : 50,
+      positivePoints: Array.isArray(parsed.positivePoints)
+        ? parsed.positivePoints
+        : [],
+      negativePoints: Array.isArray(parsed.negativePoints)
+        ? parsed.negativePoints
+        : [],
+      riskFactors: Array.isArray(parsed.riskFactors) ? parsed.riskFactors : [],
+      recommendedDocuments: Array.isArray(parsed.recommendedDocuments)
+        ? parsed.recommendedDocuments
+        : [],
+      finalAdvice:
+        typeof parsed.finalAdvice === "string"
+          ? parsed.finalAdvice
+          : "Please consult with a visa expert for detailed guidance.",
+    };
+
+    // Ensure visaChance is within valid range
+    if (validatedResponse.visaChance < 0) validatedResponse.visaChance = 0;
+    if (validatedResponse.visaChance > 100) validatedResponse.visaChance = 100;
+
+    return validatedResponse;
+  } catch (error) {
+    console.error("Visa Analysis Error:", error);
+
+    // Return a fallback response if AI completely fails
+    return {
+      visaChance: 50,
+      positivePoints: ["Application submitted with required documentation"],
+      negativePoints: [
+        "Unable to complete full analysis due to technical issues",
+      ],
+      riskFactors: ["Analysis incomplete - manual review recommended"],
+      recommendedDocuments: [
+        "All standard visa application documents",
+        "Consult with visa expert for detailed guidance",
+      ],
+      finalAdvice:
+        "Due to technical difficulties, we recommend consulting with a visa expert for a detailed analysis of your application.",
+    };
+  }
+};
+
+const aiVisaChecker = async (req, res) => {
+  try {
+    const userData = req.body;
+
+    // 🛡️ Validate mandatory fields
+    const requiredFields = [
+      "citizenship",
+      "destination",
+      "purpose",
+      "age",
+      "tripDuration",
+      "email",
+      "name",
+    ];
+
+    for (const field of requiredFields) {
+      if (!userData[field]) {
+        return res.status(400).json({
+          success: false,
+          message: `Missing required field: ${field}`,
+          field: field,
+        });
+      }
+    }
+
+    // 🔍 Validate data types and formats
+    const validationErrors = [];
+
+    // String validations
+    const stringFields = [
+      "citizenship",
+      "destination",
+      "purpose",
+      "email",
+      "name",
+    ];
+    stringFields.forEach((field) => {
+      if (userData[field] && typeof userData[field] !== "string") {
+        validationErrors.push(`${field} must be a string`);
+      }
+    });
+
+    // Integer validations
+    const integerFields = ["age", "tripDuration"];
+    integerFields.forEach((field) => {
+      if (userData[field] !== undefined) {
+        if (!Number.isInteger(userData[field]) || userData[field] < 0) {
+          validationErrors.push(`${field} must be a positive integer`);
+        }
+      }
+    });
+
+    // Age validation
+    if (userData.age && (userData.age < 1 || userData.age > 120)) {
+      validationErrors.push("age must be between 1 and 120");
+    }
+
+    // Trip duration validation
+    if (
+      userData.tripDuration &&
+      (userData.tripDuration < 1 || userData.tripDuration > 365)
+    ) {
+      validationErrors.push("tripDuration must be between 1 and 365 days");
+    }
+
+    // Email validation
+    if (userData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userData.email)) {
+      validationErrors.push("email must be a valid email address");
+    }
+
+    // Optional string fields validation
+    const optionalStringFields = [
+      "previousRejections",
+      "rejectionDetails",
+      "criminalRecord",
+      "criminalDetails",
+      "employmentStatus",
+      "companySchool",
+    ];
+    optionalStringFields.forEach((field) => {
+      if (
+        userData[field] !== undefined &&
+        typeof userData[field] !== "string"
+      ) {
+        validationErrors.push(`${field} must be a string`);
+      }
+    });
+
+    // Boolean validation
+    if (
+      userData.noTravelHistory !== undefined &&
+      typeof userData.noTravelHistory !== "boolean"
+    ) {
+      validationErrors.push("noTravelHistory must be a boolean");
+    }
+
+    // Array validations
+    const arrayFields = [
+      "rejectionCountries",
+      "visitedCountries",
+      "availableDocuments",
+    ];
+    arrayFields.forEach((field) => {
+      if (userData[field] !== undefined && !Array.isArray(userData[field])) {
+        validationErrors.push(`${field} must be an array`);
+      }
+    });
+
+    // Financial validations
+    if (userData.bankSavings !== undefined) {
+      if (!Number.isInteger(userData.bankSavings) || userData.bankSavings < 0) {
+        validationErrors.push("bankSavings must be a non-negative integer");
+      }
+    }
+
+    if (userData.monthlyIncome !== undefined) {
+      if (
+        !Number.isInteger(userData.monthlyIncome) ||
+        userData.monthlyIncome < 0
+      ) {
+        validationErrors.push("monthlyIncome must be a non-negative integer");
+      }
+    }
+
+    // Enum validations
+    if (
+      userData.previousRejections &&
+      !["yes", "no"].includes(userData.previousRejections)
+    ) {
+      validationErrors.push("previousRejections must be 'yes' or 'no'");
+    }
+
+    if (
+      userData.criminalRecord &&
+      !["yes", "no"].includes(userData.criminalRecord)
+    ) {
+      validationErrors.push("criminalRecord must be 'yes' or 'no'");
+    }
+
+    const validEmploymentStatuses = [
+      "Employed",
+      "Student",
+      "Self Employed",
+      "Retired",
+      "Unemployed",
+    ];
+    if (
+      userData.employmentStatus &&
+      !validEmploymentStatuses.includes(userData.employmentStatus)
+    ) {
+      validationErrors.push(
+        `employmentStatus must be one of: ${validEmploymentStatuses.join(", ")}`
+      );
+    }
+
+    // Return validation errors if any
+    if (validationErrors.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: validationErrors,
+      });
+    }
+
+    // 🧠 Call Gemini for analysis
+    const analysis = await analyzeVisaChances(userData);
+
+    // 🚀 Return result
+    return res.status(200).json({
+      success: true,
+      data: {
+        ...analysis,
+        analyzedAt: new Date().toISOString(),
+        inputData: {
+          citizenship: userData.citizenship,
+          destination: userData.destination,
+          purpose: userData.purpose,
+          age: userData.age,
+          tripDuration: userData.tripDuration,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("AI Visa Checker Controller Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error during visa analysis.",
+      error: error.message,
+    });
+  }
+};
+
 // exporting the functions
 
 module.exports = {
@@ -1026,4 +1484,7 @@ module.exports = {
   logout,
   getFullActionForm,
   chnageActionFormStatus,
+  deleteActionForm,
+  deleteAdsQuery,
+  aiVisaChecker,
 };

@@ -142,6 +142,12 @@ router.get(
 //submit ads query
 router.get("/ads-query", adminAuth, adminController.getAdsQuery);
 
+router.delete(
+  "/delete-ads-query/:id",
+  adminAuth,
+  publicController.deleteAdsQuery
+);
+
 //action form
 router.get(
   "/get-fullaction-form",
@@ -154,4 +160,9 @@ router.put(
   publicController.chnageActionFormStatus
 );
 
+router.delete(
+  "/delete-action-form/:id",
+  adminAuth,
+  publicController.deleteActionForm
+);
 module.exports = router;

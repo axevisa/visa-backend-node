@@ -21,6 +21,7 @@ const {
   googleLogin,
   googleCallback,
   logout,
+  aiVisaChecker,
 } = require("../controllers/publicController");
 
 //admin routes
@@ -73,13 +74,16 @@ router.post(
 router.post("/submit-action-form", submitActionForm);
 
 // get full action form
-router.post("/get-full-data-action-form",
+router.post(
+  "/get-full-data-action-form",
   dynamicUpload("actionFormDocs", [
     { name: "passport", maxCount: 2 },
     { name: "photo", maxCount: 2 },
     { name: "financial_doc", maxCount: 5 },
     { name: "supportingDocument", maxCount: 5 },
-  ]), getFullDataActionForm)
+  ]),
+  getFullDataActionForm
+);
 
 // google login
 
@@ -88,5 +92,8 @@ router.get("/google/callback", googleCallback);
 
 // Logout user
 router.post("/logout", logout);
+
+// Ai Visa Checker
+router.post("/ai-visa-checker", aiVisaChecker);
 
 module.exports = router;
