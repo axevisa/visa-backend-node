@@ -1133,60 +1133,92 @@ const logout = (req, res) => {
 };
 
 // Ai Visa Checker
-const analyzeVisaChances = async (userData) => {
+const analyzeVisaChances = async (sanitizedData) => {
   try {
-    // 🧠 System instruction for Gemini
+    // 🧠 Advanced System instruction for Gemini
     const systemPrompt = `
-      You are a professional visa eligibility analysis AI.
-      Your job is to analyze the user's visa approval chance based on given data.
+      You are a **Senior Visa Adjudication Officer** and **Immigration Lawyer** with 20+ years of experience in global immigration law (US, UK, Schengen, Canada, etc. All countries).
       
-      CRITICAL INSTRUCTIONS:
-      - Be realistic and data-driven, not overly optimistic.
-      - Analyze the current global situation of the country and the visa application process.
-      - Consider all factors: travel history, financial stability, employment, criminal record, previous rejections.
-      - You MUST return ONLY valid JSON format - no markdown, no explanations, no code blocks.
-      - The JSON must be parseable and contain all required fields.
+      ### YOUR OBJECTIVE:
+      Perform a rigorous, "worst-case scenario" risk assessment of the visa applicant. Your goal is to identify *any* reason a visa might be rejected, then calculate the probability of approval based on how well the applicant mitigates those risks.
 
-      REQUIRED JSON OUTPUT FORMAT (return exactly this structure):
+      ### RESEARCH MANDATE (LATEST DATA FOCUS):
+      - **Current Rules**: Apply the LATEST 2024/2025 visa policies, embassy instructions, and document checklists.
+      - **Geopolitical Context**: Consider current diplomatic relations between [Citizenship] and [Destination].
+      - **Real-Time Trends**: Account for recent rejection trends (e.g., stricter scrutiny for specific demographics or regions).
+      - **Data Accuracy**: Prioritize official government sources in your reasoning.
+
+      ### ANALYSIS FRAMEWORK (The 4 Pillars):
+      Evaluate the application based on these four critical pillars. 
+      1.  **Financial Solvency**: Does the applicant have enough funds for the trip *and* are they financially established in their home country? (Income vs. Savings vs. Trip Cost).
+      2.  **Strong Ties to Home**: What compels the applicant to return? (Employment, Family, Property, Age). Young, single, unemployed applicants are HIGH RISK.
+      3.  **Travel History & Compliance**: Previous travel to developed nations is a huge plus. Previous rejections or no history is a negative.
+      4.  **Intent of Visit**: Is the purpose clear, logical, and consistent with the duration? (e.g., 10 days for tourism is normal; 3 months for "visiting a friend" is suspicious).
+
+      ### SCORING CALIBRATION:
+      - **90-100%**: "Ironclad". Wealthy, extensive travel (US/UK/Schengen), stable high-paying job, family ties.
+      - **70-89%**: "Strong". Good job, some travel, sufficient funds. Minor gaps.
+      - **50-69%**: "Borderline". First-time traveler, or funds are just enough, or freelance employment (harder to prove).
+      - **30-49%**: "Weak". Low funds, no ties, young/unemployed, or bad travel history.
+      - **0-29%**: "High Risk". Previous overstay, criminal record, no funds, no job.
+
+      ### REQUIRED JSON OUTPUT FORMAT:
+      You must return ONLY a valid JSON object. Do not include markdown formatting (like \`\`\`json).
       {
-        "visaChance": 75,
-        "positivePoints": ["Strong financial stability", "Clean criminal record"],
-        "negativePoints": ["Limited travel history", "First-time applicant"],
-        "finalAdvice": "Your application shows good potential. Focus on providing comprehensive documentation.",
-        "riskFactors": ["Limited international travel experience"],
-        "recommendedDocuments": ["Detailed travel itinerary", "Hotel bookings"]
+        "visaChance": <number 0-100>,
+        "assessmentSummary": "<A 2-sentence executive summary of the decision>",
+        "pillarScores": {
+          "financial": <number 0-10 (10 is best)>,
+          "tiesToHome": <number 0-10>,
+          "travelHistory": <number 0-10>,
+          "intent": <number 0-10>
+        },
+        "positivePoints": ["<Specific strength 1>", "<Specific strength 2>", ...],
+        "negativePoints": ["<Specific weakness 1>", "<Specific weakness 2>", ...],
+        "riskFactors": ["<Critical risk 1>", "<Critical risk 2>", ...],
+        "recommendedDocuments": [
+          "<Specific Doc 1 (e.g., 'ITR for last 3 years' instead of just 'Financial docs')>",
+          "<Specific Doc 2>",
+          ...
+        ],
+        "improvementTips": [
+          "<Actionable advice 1>",
+          "<Actionable advice 2>"
+        ]
       }
-      
-      IMPORTANT: Return ONLY the JSON object, nothing else.
     `;
 
-    // 🧩 User data prompt
+    // 🧩 User data prompt with Context
     const userPrompt = `
-      Analyze the following visa applicant data and provide a professional assessment:
-      ${JSON.stringify(userData, null, 2)}
+      ### APPLICANT PROFILE
+      **Citizenship**: ${sanitizedData.citizenship}
+      **Destination**: ${sanitizedData.destination}
+      **Purpose**: ${sanitizedData.purpose}
+      **Age**: ${sanitizedData.age}
+      **Trip Duration**: ${sanitizedData.tripDuration} days
+      
+      **Financials**:
+      - Savings: ${sanitizedData.bankSavings}
+      - Monthly Income: ${sanitizedData.monthlyIncome}
+      - Employment: ${sanitizedData.employmentStatus} (${sanitizedData.companySchool})
+      
+      **History**:
+      - Traveled Before: ${!sanitizedData.noTravelHistory}
+      - Visited: ${sanitizedData.visitedCountries.join(", ") || "None"}
+      - Previous Rejections: ${sanitizedData.previousRejections} (${sanitizedData.rejectionDetails})
+      - Criminal Record: ${sanitizedData.criminalRecord} (${sanitizedData.criminalDetails})
+      
+      **Available Docs**: ${sanitizedData.availableDocuments.join(", ")}
 
-      Focus on:
-      - Visa approval likelihood (percentage)
-      - Strengths and weaknesses based on all provided data
-      - Risk factors that could affect approval
-      - Recommended additional documents
-      - Actionable advice to improve chances
+      ### INSTRUCTION
+      Analyze this profile deeply. If the "Destination" is a strict country (USA, UK, Schengen, Australia, Canada) and the "Citizenship" is a developing nation, apply stricter scrutiny.
       
-      Consider these key factors:
-      - Citizenship and destination country relationship
-      - Purpose of visit appropriateness
-      - Financial stability (savings, income, employment)
-      - Travel history and previous rejections
-      - Criminal record and legal issues
-      - Age and trip duration reasonableness
-      - Available supporting documents
-      
-      Return ONLY the JSON as specified above.
+      Return the JSON response now.
     `;
 
     // 🧬 Gemini model setup
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
+      model: "gemini-flash-latest",
       systemInstruction: systemPrompt,
     });
 
@@ -1194,23 +1226,12 @@ const analyzeVisaChances = async (userData) => {
     const response = await result.response;
     let aiText = response.text().trim();
 
-    // Debug logging
-    console.log("Raw AI Response:", aiText);
-
-    // 🧹 Clean output (if wrapped in markdown)
+    // 🧹 Clean output
     if (aiText.startsWith("```json")) {
-      aiText = aiText
-        .replace(/^```json\s*/, "")
-        .replace(/```$/, "")
-        .trim();
+      aiText = aiText.replace(/^```json\s*/, "").replace(/```$/, "").trim();
     } else if (aiText.startsWith("```")) {
-      aiText = aiText
-        .replace(/^```\s*/, "")
-        .replace(/```$/, "")
-        .trim();
+      aiText = aiText.replace(/^```\s*/, "").replace(/```$/, "").trim();
     }
-
-    console.log("Cleaned AI Response:", aiText);
 
     // ✅ Parse and validate JSON
     let parsed;
@@ -1218,53 +1239,26 @@ const analyzeVisaChances = async (userData) => {
       parsed = JSON.parse(aiText);
     } catch (parseError) {
       console.error("JSON Parse Error:", parseError);
-      console.error("AI Response:", aiText);
       throw new Error("AI returned invalid JSON format");
     }
 
-    // Validate required fields with fallbacks
+    // Validate and Normalize Response
     const validatedResponse = {
-      visaChance:
-        typeof parsed.visaChance === "number" ? parsed.visaChance : 50,
-      positivePoints: Array.isArray(parsed.positivePoints)
-        ? parsed.positivePoints
-        : [],
-      negativePoints: Array.isArray(parsed.negativePoints)
-        ? parsed.negativePoints
-        : [],
+      visaChance: typeof parsed.visaChance === "number" ? parsed.visaChance : 0,
+      assessmentSummary: parsed.assessmentSummary || "Assessment complete.",
+      pillarScores: parsed.pillarScores || { financial: 5, tiesToHome: 5, travelHistory: 5, intent: 5 },
+      positivePoints: Array.isArray(parsed.positivePoints) ? parsed.positivePoints : [],
+      negativePoints: Array.isArray(parsed.negativePoints) ? parsed.negativePoints : [],
       riskFactors: Array.isArray(parsed.riskFactors) ? parsed.riskFactors : [],
-      recommendedDocuments: Array.isArray(parsed.recommendedDocuments)
-        ? parsed.recommendedDocuments
-        : [],
-      finalAdvice:
-        typeof parsed.finalAdvice === "string"
-          ? parsed.finalAdvice
-          : "Please consult with a visa expert for detailed guidance.",
+      recommendedDocuments: Array.isArray(parsed.recommendedDocuments) ? parsed.recommendedDocuments : [],
+      finalAdvice: Array.isArray(parsed.improvementTips) ? parsed.improvementTips.join(". ") : (parsed.finalAdvice || "Consult an expert."),
+      improvementTips: Array.isArray(parsed.improvementTips) ? parsed.improvementTips : []
     };
-
-    // Ensure visaChance is within valid range
-    if (validatedResponse.visaChance < 0) validatedResponse.visaChance = 0;
-    if (validatedResponse.visaChance > 100) validatedResponse.visaChance = 100;
 
     return validatedResponse;
   } catch (error) {
     console.error("Visa Analysis Error:", error);
-
-    // Return a fallback response if AI completely fails
-    return {
-      visaChance: 50,
-      positivePoints: ["Application submitted with required documentation"],
-      negativePoints: [
-        "Unable to complete full analysis due to technical issues",
-      ],
-      riskFactors: ["Analysis incomplete - manual review recommended"],
-      recommendedDocuments: [
-        "All standard visa application documents",
-        "Consult with visa expert for detailed guidance",
-      ],
-      finalAdvice:
-        "Due to technical difficulties, we recommend consulting with a visa expert for a detailed analysis of your application.",
-    };
+    throw error;
   }
 };
 
@@ -1279,8 +1273,9 @@ const aiVisaChecker = async (req, res) => {
       "purpose",
       "age",
       "tripDuration",
-      "email",
-      "name",
+      "email", // Required for saving, but NOT sent to AI
+      "name",  // Required for saving, but NOT sent to AI
+      "phone", // Required for saving, but NOT sent to AI
     ];
 
     for (const field of requiredFields) {
@@ -1288,168 +1283,75 @@ const aiVisaChecker = async (req, res) => {
         return res.status(400).json({
           success: false,
           message: `Missing required field: ${field}`,
-          field: field,
         });
       }
     }
 
-    // 🔍 Validate data types and formats
-    const validationErrors = [];
+    // 1️⃣ Extract Personal Details (NOT for AI)
+    const personalDetails = {
+      name: userData.name,
+      email: userData.email,
+      phone: userData.phone,
+    };
 
-    // String validations
-    const stringFields = [
-      "citizenship",
-      "destination",
-      "purpose",
-      "email",
-      "name",
-    ];
-    stringFields.forEach((field) => {
-      if (userData[field] && typeof userData[field] !== "string") {
-        validationErrors.push(`${field} must be a string`);
-      }
+    // 2️⃣ Extract & Sanitize Application Details (FOR AI)
+    // We explicitly pick fields to ensure no personal info leaks
+    const applicationDetails = {
+      citizenship: userData.citizenship,
+      destination: userData.destination,
+      purpose: userData.purpose,
+      age: userData.age,
+      tripDuration: userData.tripDuration,
+      previousRejections: userData.previousRejections || "no",
+      rejectionCountries: userData.rejectionCountries || [],
+      rejectionDetails: userData.rejectionDetails || "",
+      criminalRecord: userData.criminalRecord || "no",
+      criminalDetails: userData.criminalDetails || "",
+      noTravelHistory: userData.noTravelHistory || false,
+      visitedCountries: userData.visitedCountries || [],
+      bankSavings: userData.bankSavings || 0,
+      monthlyIncome: userData.monthlyIncome || 0,
+      employmentStatus: userData.employmentStatus || "",
+      companySchool: userData.companySchool || "",
+      availableDocuments: userData.availableDocuments || [],
+    };
+
+    // 3️⃣ Call AI with Sanitized Data
+    let aiAnalysisResult;
+    try {
+      aiAnalysisResult = await analyzeVisaChances(applicationDetails);
+    } catch (aiError) {
+      // Fallback if AI fails
+      aiAnalysisResult = {
+        visaChance: 0,
+        positivePoints: [],
+        negativePoints: ["AI Analysis Service Unavailable"],
+        riskFactors: [],
+        recommendedDocuments: [],
+        finalAdvice: "We are currently experiencing high traffic. Please try again later or consult an expert.",
+      };
+    }
+
+    // 4️⃣ Save Full Data to MongoDB
+    const VisaAssessment = require("../model/VisaAssessment");
+    const newAssessment = new VisaAssessment({
+      personalDetails,
+      applicationDetails,
+      aiAnalysis: aiAnalysisResult,
     });
 
-    // Integer validations
-    const integerFields = ["age", "tripDuration"];
-    integerFields.forEach((field) => {
-      if (userData[field] !== undefined) {
-        if (!Number.isInteger(userData[field]) || userData[field] < 0) {
-          validationErrors.push(`${field} must be a positive integer`);
-        }
-      }
-    });
+    await newAssessment.save();
 
-    // Age validation
-    if (userData.age && (userData.age < 1 || userData.age > 120)) {
-      validationErrors.push("age must be between 1 and 120");
-    }
-
-    // Trip duration validation
-    if (
-      userData.tripDuration &&
-      (userData.tripDuration < 1 || userData.tripDuration > 365)
-    ) {
-      validationErrors.push("tripDuration must be between 1 and 365 days");
-    }
-
-    // Email validation
-    if (userData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userData.email)) {
-      validationErrors.push("email must be a valid email address");
-    }
-
-    // Optional string fields validation
-    const optionalStringFields = [
-      "previousRejections",
-      "rejectionDetails",
-      "criminalRecord",
-      "criminalDetails",
-      "employmentStatus",
-      "companySchool",
-    ];
-    optionalStringFields.forEach((field) => {
-      if (
-        userData[field] !== undefined &&
-        typeof userData[field] !== "string"
-      ) {
-        validationErrors.push(`${field} must be a string`);
-      }
-    });
-
-    // Boolean validation
-    if (
-      userData.noTravelHistory !== undefined &&
-      typeof userData.noTravelHistory !== "boolean"
-    ) {
-      validationErrors.push("noTravelHistory must be a boolean");
-    }
-
-    // Array validations
-    const arrayFields = [
-      "rejectionCountries",
-      "visitedCountries",
-      "availableDocuments",
-    ];
-    arrayFields.forEach((field) => {
-      if (userData[field] !== undefined && !Array.isArray(userData[field])) {
-        validationErrors.push(`${field} must be an array`);
-      }
-    });
-
-    // Financial validations
-    if (userData.bankSavings !== undefined) {
-      if (!Number.isInteger(userData.bankSavings) || userData.bankSavings < 0) {
-        validationErrors.push("bankSavings must be a non-negative integer");
-      }
-    }
-
-    if (userData.monthlyIncome !== undefined) {
-      if (
-        !Number.isInteger(userData.monthlyIncome) ||
-        userData.monthlyIncome < 0
-      ) {
-        validationErrors.push("monthlyIncome must be a non-negative integer");
-      }
-    }
-
-    // Enum validations
-    if (
-      userData.previousRejections &&
-      !["yes", "no"].includes(userData.previousRejections)
-    ) {
-      validationErrors.push("previousRejections must be 'yes' or 'no'");
-    }
-
-    if (
-      userData.criminalRecord &&
-      !["yes", "no"].includes(userData.criminalRecord)
-    ) {
-      validationErrors.push("criminalRecord must be 'yes' or 'no'");
-    }
-
-    const validEmploymentStatuses = [
-      "Employed",
-      "Student",
-      "Self Employed",
-      "Retired",
-      "Unemployed",
-    ];
-    if (
-      userData.employmentStatus &&
-      !validEmploymentStatuses.includes(userData.employmentStatus)
-    ) {
-      validationErrors.push(
-        `employmentStatus must be one of: ${validEmploymentStatuses.join(", ")}`
-      );
-    }
-
-    // Return validation errors if any
-    if (validationErrors.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errors: validationErrors,
-      });
-    }
-
-    // 🧠 Call Gemini for analysis
-    const analysis = await analyzeVisaChances(userData);
-
-    // 🚀 Return result
+    // 5️⃣ Return Response (AI Result + ID)
     return res.status(200).json({
       success: true,
       data: {
-        ...analysis,
-        analyzedAt: new Date().toISOString(),
-        inputData: {
-          citizenship: userData.citizenship,
-          destination: userData.destination,
-          purpose: userData.purpose,
-          age: userData.age,
-          tripDuration: userData.tripDuration,
-        },
+        assessmentId: newAssessment._id,
+        ...aiAnalysisResult,
+        analyzedAt: newAssessment.createdAt,
       },
     });
+
   } catch (error) {
     console.error("AI Visa Checker Controller Error:", error);
     return res.status(500).json({
