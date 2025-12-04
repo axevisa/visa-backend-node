@@ -165,4 +165,12 @@ router.delete(
   adminAuth,
   publicController.deleteActionForm
 );
+
+//visa assessment reports
+router.get(
+  "/assessments",
+  adminAuth,
+  publicController.getAllAssessments
+);
+
 module.exports = router;

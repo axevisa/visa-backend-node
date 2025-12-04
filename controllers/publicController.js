@@ -13,6 +13,7 @@ const { getWelcomeEmailTemplate } = require("../emails/welcomeTemplate.js");
 const { getOtpEmailTemplate } = require("../emails/otp.js");
 const ActionFormSubmission = require("../model/ActionFormSubmission");
 const FullActionForm = require("../model/FullActionForm");
+const VisaAssessment = require("../model/VisaAssessment");
 const axios = require("axios");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
@@ -1333,7 +1334,6 @@ const aiVisaChecker = async (req, res) => {
     }
 
     // 4️⃣ Save Full Data to MongoDB
-    const VisaAssessment = require("../model/VisaAssessment");
     const newAssessment = new VisaAssessment({
       personalDetails,
       applicationDetails,
@@ -1357,6 +1357,48 @@ const aiVisaChecker = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal server error during visa analysis.",
+      error: error.message,
+    });
+  }
+};
+
+// Get all assessment reports with pagination (Admin only)
+const getAllAssessments = async (req, res) => {
+  try {
+    // Get pagination params from query, with defaults
+    let { page = 1, limit = 10 } = req.query;
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+    // Calculate skip value
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination info
+    const total = await VisaAssessment.countDocuments();
+
+    // Fetch paginated data, latest first
+    const assessments = await VisaAssessment.find()
+      .sort({ createdAt: -1 }) // Latest first
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      success: true,
+      data: assessments,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPrevPage: page > 1,
+      },
+    });
+  } catch (error) {
+    console.error("Get All Assessments Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
       error: error.message,
     });
   }
@@ -1389,4 +1431,5 @@ module.exports = {
   deleteActionForm,
   deleteAdsQuery,
   aiVisaChecker,
+  getAllAssessments,
 };
