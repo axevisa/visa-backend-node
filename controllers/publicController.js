@@ -1347,6 +1347,7 @@ const aiVisaChecker = async (req, res) => {
       success: true,
       data: {
         assessmentId: newAssessment._id,
+        personalDetails,
         ...aiAnalysisResult,
         analyzedAt: newAssessment.createdAt,
       },
