@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
 const csv = require("csv-parser");
-const { sendMail } = require("../config/nodemailer");
+const { sendMail, sendMailWithAttachment } = require("../config/nodemailer");
 const { getWelcomeEmailTemplate } = require("../emails/welcomeTemplate.js");
 const { getOtpEmailTemplate } = require("../emails/otp.js");
 const ActionFormSubmission = require("../model/ActionFormSubmission");
@@ -1404,6 +1404,71 @@ const getAllAssessments = async (req, res) => {
   }
 };
 
+// Send AI VISA CHECKER REPORT via email with PDF attachment
+const sendVisaReportEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    // Validate email
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid email address is required",
+      });
+    }
+
+    // Check if PDF file is uploaded
+    const uploaded = req.uploadedFiles || {};
+    if (!uploaded.pdf) {
+      return res.status(400).json({
+        success: false,
+        message: "PDF file is required",
+      });
+    }
+
+    // uploaded.pdf is a relative path like "/uploads/visaReports/filename.pdf"
+    // Handle path correctly for both Windows and Unix
+    const pdfRelativePath = uploaded.pdf.startsWith('/') ? uploaded.pdf.substring(1) : uploaded.pdf;
+    const pdfPath = path.join(process.cwd(), pdfRelativePath);
+    
+    // Extract filename from path for attachment name
+    const pdfName = path.basename(uploaded.pdf) || "AI_VISA_CHECKER_REPORT.pdf";
+
+    // Email content
+    const subject = "AI VISA CHECKER REPORT";
+    const message = "Please find attached your AI VISA CHECKER REPORT from AXE VISA.";
+
+    // Send email with attachment
+    const result = await sendMailWithAttachment(
+      email,
+      subject,
+      message,
+      pdfPath,
+      pdfName
+    );
+
+    if (result.success) {
+      return res.status(200).json({
+        success: true,
+        message: "Report sent successfully to your email",
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send email",
+        error: result.error,
+      });
+    }
+  } catch (error) {
+    console.error("Send Visa Report Email Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
 // exporting the functions
 
 module.exports = {
@@ -1432,4 +1497,5 @@ module.exports = {
   deleteAdsQuery,
   aiVisaChecker,
   getAllAssessments,
+  sendVisaReportEmail,
 };

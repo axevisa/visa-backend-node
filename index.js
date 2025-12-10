@@ -15,6 +15,9 @@ const expertRoute = require("./routers/expertRouter");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy for accurate IP detection (important for rate limiting behind proxies/load balancers)
+app.set('trust proxy', 1);
+
 // Connect to the database
 db();
 

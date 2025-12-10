@@ -2,6 +2,13 @@ const express = require("express");
 const router = express.Router();
 const dynamicUpload = require("../middleware/multer");
 const {
+  aiEndpointRateLimiter,
+  dailyRateLimiter,
+  validateRequestSize,
+  requestTimeout
+} = require("../middleware/rateLimiter");
+const { validateAIRequest } = require("../middleware/aiRequestValidator");
+const {
   registerAdmin,
   loginAdmin,
   registerExpert,
@@ -22,6 +29,7 @@ const {
   googleCallback,
   logout,
   aiVisaChecker,
+  sendVisaReportEmail,
 } = require("../controllers/publicController");
 
 //admin routes
@@ -93,7 +101,24 @@ router.get("/google/callback", googleCallback);
 // Logout user
 router.post("/logout", logout);
 
-// Ai Visa Checker
-router.post("/ai-visa-checker", aiVisaChecker);
+// Ai Visa Checker - Protected with rate limiting and validation
+router.post(
+  "/ai-visa-checker",
+  validateRequestSize,           // Prevent oversized requests
+  requestTimeout(30000),         // 30 second timeout
+  dailyRateLimiter,              // Daily limit: 20 requests per IP
+  aiEndpointRateLimiter,         // Short-term limit: 5 requests per 15 minutes
+  // validateAIRequest,             // Input validation and sanitization
+  aiVisaChecker
+);
+
+// Send Visa Report Email with PDF attachment
+router.post(
+  "/send-visa-report-email",
+  dynamicUpload("visaReports", [
+    { name: "pdf", maxCount: 1 }
+  ]),
+  sendVisaReportEmail
+);
 
 module.exports = router;
