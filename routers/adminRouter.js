@@ -168,8 +168,7 @@ router.delete(
 
 //visa assessment reports
 router.get(
-  "/assessments",
-  adminAuth,
+  "/visa-assessment-reports",
   publicController.getAllAssessments
 );
 
